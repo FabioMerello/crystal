@@ -36,6 +36,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+
+    document.querySelectorAll(".carousel").forEach(carousel => {
+        const track = carousel.querySelector(".carousel-track");
+        const slides = Array.from(track.children);
+        const prevBtn = carousel.querySelector(".prev");
+        const nextBtn = carousel.querySelector(".next");
+        let index = 0;
+
+        // Imposta larghezza slide al resize
+        function setSlideWidths() {
+            const slideWidth = carousel.clientWidth;
+            slides.forEach(slide => slide.style.width = `${slideWidth}px`);
+            updateCarousel();
+        }
+
+        window.addEventListener("resize", setSlideWidths);
+        setSlideWidths();
+
+        // Aggiorna carosello
+        function updateCarousel() {
+            const slideWidth = slides[0].clientWidth;
+            track.style.transform = `translateX(-${index * slideWidth}px)`;
+        }
+
+        // Pulsanti
+        nextBtn.addEventListener("click", () => {
+            index = (index + 1) % slides.length;
+            updateCarousel();
+        });
+
+        prevBtn.addEventListener("click", () => {
+            index = (index - 1 + slides.length) % slides.length;
+            updateCarousel();
+        });
+
+        // Swipe touch per mobile
+        let startX = 0;
+        let endX = 0;
+
+        track.addEventListener("touchstart", e => {
+            startX = e.touches[0].clientX;
+        });
+
+        track.addEventListener("touchend", e => {
+            endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+
+            if (diff > 50) { // swipe sinistra
+                index = (index + 1) % slides.length;
+                updateCarousel();
+            } else if (diff < -50) { // swipe destra
+                index = (index - 1 + slides.length) % slides.length;
+                updateCarousel();
+            }
+        });
+    });
+
     // Funzione per nascondere banner
     const banner = document.getElementById('cookie-banner');
     const acceptBtn = document.getElementById('accept-cookies');
