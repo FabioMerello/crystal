@@ -121,56 +121,79 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const mapContainer = document.getElementById("map-container-3");
-    const banner = document.getElementById("cookie-banner");
-    const acceptBtn = document.getElementById("accept-cookies");
-    const rejectBtn = document.getElementById("reject-cookies");
-
-    const mapIframe = `
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2820.079875904058!2d7.662653876250102!3d45.023303971070256!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDXCsDAxJzIzLjkiTiA3wrAzOSc1NC44IkU!5e0!3m2!1sit!2sit!4v1765832559675!5m2!1sit!2sit"
+    // Mappa
+    const map = {
+        id: "map-container",
+        iframe: `<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2959.384089328617!2d14.705938999999999!3d42.120659999999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDLCsDA3JzE0LjQiTiAxNMKwNDInMjEuNCJF!5e0!3m2!1sit!2sit"
             width="600"
             height="450"
             style="border:0;"
-            loading="lazy">
-        </iframe>
-    `;
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>`
+    };
 
     function loadMap() {
-        if (mapContainer) {
-            mapContainer.innerHTML = mapIframe;
+        const container = document.getElementById(map.id);
+        if (container) {
+            container.innerHTML = map.iframe;
         }
     }
 
     const consent = localStorage.getItem("cookiesChoice");
 
+    // Se accettato
     if (consent === "accepted") {
         loadMap();
-        if (banner) banner.style.display = "none";
     }
 
+    // Se rifiutato
     if (consent === "rejected") {
-        if (banner) banner.style.display = "none";
+        const container = document.getElementById(map.id);
+        if (container) {
+            container.innerHTML = `
+                <div class="map-placeholder">
+                    Per visualizzare la mappa è necessario accettare i cookie.
+                </div>
+            `;
+        }
     }
+
+    // Banner
+    const banner = document.getElementById("cookie-banner");
+    const acceptBtn = document.getElementById("accept-cookies");
+    const rejectBtn = document.getElementById("reject-cookies");
 
     if (!consent && banner) {
-        banner.style.display = "block";
+        setTimeout(() => banner.classList.add("show"), 300);
     }
 
+    // Accetta
     if (acceptBtn) {
-        acceptBtn.addEventListener("click", () => {
+        acceptBtn.addEventListener("click", function () {
             localStorage.setItem("cookiesChoice", "accepted");
+            banner.classList.remove("show");
             loadMap();
-            if (banner) banner.style.display = "none";
         });
     }
 
+    // Rifiuta
     if (rejectBtn) {
-        rejectBtn.addEventListener("click", () => {
+        rejectBtn.addEventListener("click", function () {
             localStorage.setItem("cookiesChoice", "rejected");
-            if (banner) banner.style.display = "none";
+            banner.classList.remove("show");
+
+            const container = document.getElementById(map.id);
+            if (container) {
+                container.innerHTML = `
+                    <div class="map-placeholder">
+                        Per visualizzare la mappa è necessario accettare i cookie.
+                    </div>
+                `;
+            }
         });
     }
 
